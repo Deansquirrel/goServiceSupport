@@ -3,10 +3,9 @@ package router
 import (
 	"fmt"
 	"github.com/Deansquirrel/goServiceSupport/object"
+	"github.com/Deansquirrel/goServiceSupport/repository"
 	"github.com/kataras/iris"
 )
-
-import log "github.com/Deansquirrel/goToolLog"
 
 type client struct {
 	app *iris.Application
@@ -28,21 +27,46 @@ func (r *client) AddRouter() {
 }
 
 func (r *client) getClientId(ctx iris.Context) {
-	var requestData object.ClientIdRequest
-	err := ctx.ReadJSON(&requestData)
+	var d object.ClientIdRequest
+	err := ctx.ReadJSON(&d)
 	if err != nil {
-		log.Debug("")
 		r.c.WriteResponse(ctx, &object.ClientIdResponse{
 			ErrCode: -1,
 			ErrMsg:  fmt.Sprintf("Bad Request: %s", err.Error()),
 		})
 		return
 	}
-	//TODO GetClientId
-	var clientId string
-	r.c.WriteResponse(ctx, &object.ClientIdResponse{
-		ErrCode: int(object.ErrTypeCodeNoError),
-		ErrMsg:  string(object.ErrTypeMsgNoError),
-		Id:      clientId,
-	})
+
+	rep := repository.NewRepLocal(repository.NewCommon().GetLocalDbConfig())
+	idList, err := rep.GetClientId(d.ClientType, d.HostName, d.DbId, d.DbName)
+	if err != nil {
+		r.c.WriteResponse(ctx, &object.ClientIdResponse{
+			ErrCode: -1,
+			ErrMsg:  err.Error(),
+		})
+		return
+	}
+	if len(idList) > 0 {
+		r.c.WriteResponse(ctx, &object.ClientIdResponse{
+			ErrCode: int(object.ErrTypeCodeNoError),
+			ErrMsg:  string(object.ErrTypeMsgNoError),
+			Id:      idList[0],
+		})
+		return
+	}
+	newId, err := rep.NewClientId(d.ClientType, d.HostName, d.DbId, d.DbName)
+	if err != nil {
+		r.c.WriteResponse(ctx, &object.ClientIdResponse{
+			ErrCode: -1,
+			ErrMsg:  err.Error(),
+		})
+		return
+	} else {
+		r.c.WriteResponse(ctx, &object.ClientIdResponse{
+			ErrCode: int(object.ErrTypeCodeNoError),
+			ErrMsg:  string(object.ErrTypeMsgNoError),
+			Id:      newId,
+		})
+		return
+	}
 }
