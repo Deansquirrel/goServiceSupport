@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 	"fmt"
+	"github.com/Deansquirrel/goServiceSupport/object"
 	"github.com/Deansquirrel/goToolCommon"
 	"github.com/Deansquirrel/goToolMSSql"
 	"github.com/Deansquirrel/goToolMSSqlHelper"
@@ -23,6 +24,13 @@ const (
 		"	AND [hostname] = ? " +
 		"	AND [dbid] = ? " +
 		"	AND [dbname] = ?"
+	sqlGetClientType = "" +
+		"SELECT [clienttype],[issvrv3],[hasdb],[lastversion] " +
+		"FROM [clienttypeinfo] " +
+		"WHERE [clienttype]=?"
+	sqlNewClientType = "" +
+		"INSERT INTO [clienttypeinfo]([clienttype],[issvrv3],[hasdb],[lastversion]) " +
+		"VALUES (?,?,?,?)"
 )
 
 type repLocal struct {
@@ -80,4 +88,44 @@ func (r *repLocal) GetClientId(clientType, hostName string, dbId int, dbName str
 		return nil, errors.New(errMsg)
 	}
 	return rList, nil
+}
+
+func (r *repLocal) GetClientType(id string) ([]*object.ClientTypeInfo, error) {
+	rows, err := goToolMSSqlHelper.GetRowsBySQL(r.dbConfig, sqlGetClientType, id)
+	if err != nil {
+		errMsg := fmt.Sprintf("get client type %s err: %s", id, err.Error())
+		log.Error(errMsg)
+		return nil, errors.New(errMsg)
+	}
+	defer func() {
+		_ = rows.Close()
+	}()
+	rList := make([]*object.ClientTypeInfo, 0)
+	var clientType, lastVersion string
+	var isSvrV3, hasDb int
+	for rows.Next() {
+		err := rows.Scan(&clientType, &isSvrV3, &hasDb, &lastVersion)
+		if err != nil {
+			errMsg := fmt.Sprintf("%s read data err: %s", "GetClientType", err.Error())
+			log.Error(errMsg)
+			return nil, errors.New(errMsg)
+		}
+		rList = append(rList, &object.ClientTypeInfo{
+			ClientType:  clientType,
+			IsSvrV3:     isSvrV3,
+			HasDb:       hasDb,
+			LastVersion: lastVersion,
+		})
+	}
+	if rows.Err() != nil {
+		errMsg := fmt.Sprintf("%s read data err: %s", "GetClientType", rows.Err().Error())
+		log.Error(errMsg)
+		return nil, errors.New(errMsg)
+	}
+	return rList, nil
+}
+
+func (r *repLocal) NewClientType(clientType string, isSvrV3 int, hasDb int, lastVersion string) error {
+	return goToolMSSqlHelper.SetRowsBySQL(r.dbConfig, sqlNewClientType,
+		clientType, isSvrV3, hasDb, lastVersion)
 }

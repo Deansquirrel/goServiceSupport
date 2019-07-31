@@ -3,7 +3,7 @@ package router
 import (
 	"fmt"
 	"github.com/Deansquirrel/goServiceSupport/object"
-	"github.com/Deansquirrel/goServiceSupport/repository"
+	"github.com/Deansquirrel/goServiceSupport/worker"
 	"github.com/kataras/iris"
 )
 
@@ -36,25 +36,8 @@ func (r *client) getClientId(ctx iris.Context) {
 		})
 		return
 	}
-
-	rep := repository.NewRepLocal(repository.NewCommon().GetLocalDbConfig())
-	idList, err := rep.GetClientId(d.ClientType, d.HostName, d.DbId, d.DbName)
-	if err != nil {
-		r.c.WriteResponse(ctx, &object.ClientIdResponse{
-			ErrCode: -1,
-			ErrMsg:  err.Error(),
-		})
-		return
-	}
-	if len(idList) > 0 {
-		r.c.WriteResponse(ctx, &object.ClientIdResponse{
-			ErrCode: int(object.ErrTypeCodeNoError),
-			ErrMsg:  string(object.ErrTypeMsgNoError),
-			Id:      idList[0],
-		})
-		return
-	}
-	newId, err := rep.NewClientId(d.ClientType, d.HostName, d.DbId, d.DbName)
+	w := worker.NewWorker()
+	newId, err := w.GetClientId(d.ClientType, d.HostName, d.DbId, d.DbName)
 	if err != nil {
 		r.c.WriteResponse(ctx, &object.ClientIdResponse{
 			ErrCode: -1,
