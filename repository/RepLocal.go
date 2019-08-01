@@ -31,6 +31,37 @@ const (
 	sqlNewClientType = "" +
 		"INSERT INTO [clienttypeinfo]([clienttype],[issvrv3],[hasdb],[lastversion]) " +
 		"VALUES (?,?,?,?)"
+	sqlUpdateClientFlashInfo = "" +
+		"IF EXISTS (SELECT * FROM [ClientFlashInfo] WHERE [clientid] = ?) " +
+		"	Begin " +
+		"		UPDATE [ClientFlashInfo] " +
+		"		SET [clientid] = ?,[clientversion]= ?,[internetip] = ?,[lastupdate] = ? " +
+		"		WHERE [clientid] = ? " +
+		"	End " +
+		"ELSE " +
+		"	Begin " +
+		"		INSERT INTO [ClientFlashInfo]([clientid],[clientversion],[internetip],[lastupdate]) " +
+		"		VALUES (?,?,?,?) " +
+		"	End"
+	sqlUpdateSvrV3Info = "" +
+		"IF EXISTS (SELECT * FROM [SvrV3Info] WHERE [clientid] = ?) " +
+		"	Begin " +
+		"		UPDATE [SvrV3Info] " +
+		"		SET [clientId]=?,[coid]=?,[coab]=?,[cocode]=?,[couserab]=?, " +
+		"			[cousercode]=?,[cofunc]=?,[svname]=?,[svver]=?,[svdate]=?, " +
+		"			[lastupdate]=? " +
+		"		WHERE [clientid] = ? " +
+		"	End " +
+		"ELSE " +
+		"	Begin " +
+		"		INSERT INTO [SvrV3Info]([clientId],[coid],[coab],[cocode],[couserab], " +
+		"			[cousercode],[cofunc],[svname],[svver],[svdate], " +
+		"			[lastupdate]) " +
+		"		VALUES ( " +
+		"			?,?,?,?,?, " +
+		"			?,?,?,?,?, " +
+		"			?) " +
+		"	End"
 )
 
 type repLocal struct {
@@ -126,6 +157,44 @@ func (r *repLocal) GetClientType(id string) ([]*object.ClientTypeInfo, error) {
 }
 
 func (r *repLocal) NewClientType(clientType string, isSvrV3 int, hasDb int, lastVersion string) error {
-	return goToolMSSqlHelper.SetRowsBySQL(r.dbConfig, sqlNewClientType,
+	err := goToolMSSqlHelper.SetRowsBySQL(r.dbConfig, sqlNewClientType,
 		clientType, isSvrV3, hasDb, lastVersion)
+	if err != nil {
+		errMsg := fmt.Sprintf("add new client type err: %s", err.Error())
+		log.Error(errMsg)
+		return errors.New(errMsg)
+	}
+	return nil
+}
+
+func (r *repLocal) UpdateClientFlashInfo(cfi *object.ClientFlashInfo) error {
+	err := goToolMSSqlHelper.SetRowsBySQL(r.dbConfig, sqlUpdateClientFlashInfo,
+		cfi.ClientId,
+		cfi.ClientId, cfi.ClientVersion, cfi.InternetIP, cfi.LastUpdate,
+		cfi.ClientId,
+		cfi.ClientId, cfi.ClientVersion, cfi.InternetIP, cfi.LastUpdate)
+	if err != nil {
+		errMsg := fmt.Sprintf("UpdateClientFlashInfo err: %s", err.Error())
+		log.Error(errMsg)
+		return errors.New(errMsg)
+	}
+	return nil
+}
+
+func (r *repLocal) UpdateSvrV3Info(d *object.SvrV3Info) error {
+	err := goToolMSSqlHelper.SetRowsBySQL(r.dbConfig, sqlUpdateSvrV3Info,
+		d.ClientId,
+		d.ClientId, d.CoId, d.CoAb, d.CoCode, d.CoUserAb,
+		d.CoUserCode, d.CoFunc, d.SvName, d.SvVer, d.SvDate,
+		d.LastUpdate,
+		d.ClientId,
+		d.ClientId, d.CoId, d.CoAb, d.CoCode, d.CoUserAb,
+		d.CoUserCode, d.CoFunc, d.SvName, d.SvVer, d.SvDate,
+		d.LastUpdate)
+	if err != nil {
+		errMsg := fmt.Sprintf("UpdateSvrV3Info err: %s", err.Error())
+		log.Error(errMsg)
+		return errors.New(errMsg)
+	}
+	return nil
 }

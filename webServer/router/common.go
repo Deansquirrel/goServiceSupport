@@ -3,6 +3,7 @@ package router
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/Deansquirrel/goServiceSupport/object"
 	log "github.com/Deansquirrel/goToolLog"
 	"github.com/kataras/iris"
 	"io/ioutil"
@@ -28,6 +29,22 @@ func (c *common) GetRequestBody(ctx iris.Context) string {
 	return string(b)
 }
 
+func (c *common) WriteSuccess(ctx iris.Context) {
+	c.WriteResponse(ctx, &object.Response{
+		ErrCode: int(object.ErrTypeCodeNoError),
+		ErrMsg:  string(object.ErrTypeMsgNoError),
+	})
+	return
+}
+
+func (c *common) WriteError(ctx iris.Context, errCode int, errMsg string) {
+	c.WriteResponse(ctx, &object.Response{
+		ErrCode: -1,
+		ErrMsg:  errMsg,
+	})
+	return
+}
+
 //向ctx中添加返回内容
 func (c *common) WriteResponse(ctx iris.Context, v interface{}) {
 	str, err := json.Marshal(v)
@@ -35,7 +52,7 @@ func (c *common) WriteResponse(ctx iris.Context, v interface{}) {
 		body := fmt.Sprintf(TranErrStr, "err:"+err.Error())
 		_, err = ctx.WriteString(body)
 		if err != nil {
-			log.Error(fmt.Sprintf("write body err,body: %s,err: %s", string(str), err.Error()))
+			log.Error(fmt.Sprintf("write body err,body: %s,err: %s", string(body), err.Error()))
 		}
 		return
 	}
