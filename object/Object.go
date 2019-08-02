@@ -29,3 +29,18 @@ type SvrV3Info struct {
 	SvDate     time.Time
 	LastUpdate time.Time
 }
+
+type HeartBeat struct {
+	ClientId        string
+	HeartBeatClient time.Time
+	HeartBeat       time.Time
+}
+
+type JobRecord struct {
+	JobId     string
+	ClientId  string
+	JobKey    string
+	JobCron   string
+	StartTime time.Time
+	EndTime   time.Time
+}

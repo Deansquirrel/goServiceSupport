@@ -39,15 +39,27 @@ type ClientFlashInfoRequest struct {
 }
 
 type SvrV3InfoRequest struct {
-	ClientId   string
-	CoId       int
-	CoAb       string
-	CoCode     string
-	CoUserAb   string
-	CoUserCode string
-	CoFunc     int
-	SvName     string
-	SvVer      string
+	ClientId   string `json:"clientid"`
+	CoId       int    `json:"coid"`
+	CoAb       string `json:"coab"`
+	CoCode     string `json:"cocode"`
+	CoUserAb   string `json:"couserab"`
+	CoUserCode string `json:"cousercode"`
+	CoFunc     int    `json:"cofunc"`
+	SvName     string `json:"svname"`
+	SvVer      string `json:"svver"`
 	//2019-08-01T17:58:12+08:00
-	SvDate time.Time
+	SvDate time.Time `json:"svdate"`
+}
+
+type HeartBeatRequest struct {
+	ClientId        string    `json:"clientid"`
+	HeartBeatClient time.Time `json:"heartbeatclient"`
+}
+
+type JobRecordRequest struct {
+	JobId    string `json:"jobid"`
+	ClientId string `json:"clientid"`
+	JobKey   string `json:"jobkey"`
+	JobCron  string `json:"jobcron"`
 }

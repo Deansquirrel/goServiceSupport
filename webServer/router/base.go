@@ -3,7 +3,6 @@ package router
 import (
 	"github.com/Deansquirrel/goServiceSupport/global"
 	"github.com/Deansquirrel/goServiceSupport/object"
-	"github.com/iris-contrib/middleware/cors"
 	"github.com/kataras/iris"
 )
 
@@ -19,12 +18,13 @@ func NewRouterBase(app *iris.Application) *base {
 	}
 }
 
-func (base *base) AddBase() {
-	crs := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"}, //允许通过的主机名称
-		AllowCredentials: true,
-	})
-	v := base.app.Party("/", crs).AllowMethods(iris.MethodOptions)
+func (base *base) AddRouter() {
+	//crs := cors.New(cors.Options{
+	//	AllowedOrigins:   []string{"*"}, //允许通过的主机名称
+	//	AllowCredentials: true,
+	//})
+	//v := base.app.Party("/", crs).AllowMethods(iris.MethodOptions)
+	v := base.app.Party("/")
 	{
 		v.Get("/version", base.version)
 		v.Get("/type", base.getType)

@@ -4,6 +4,7 @@ import (
 	"github.com/Deansquirrel/goServiceSupport/object"
 	"github.com/Deansquirrel/goServiceSupport/repository"
 	"github.com/Deansquirrel/goToolMSSql"
+	"github.com/Deansquirrel/goToolMSSqlHelper"
 	"time"
 )
 
@@ -68,5 +69,38 @@ func (w *worker) RefreshSvrV3Info(d *object.SvrV3InfoRequest) error {
 		SvVer:      d.SvVer,
 		SvDate:     d.SvDate,
 		LastUpdate: time.Now(),
+	})
+}
+
+func (w *worker) UpdateHeartBeat(d *object.HeartBeatRequest) error {
+	rep := repository.NewRepLocal(repository.NewCommon().GetLocalDbConfig())
+	return rep.UpdateHeartBeat(&object.HeartBeat{
+		ClientId:        d.ClientId,
+		HeartBeatClient: d.HeartBeatClient,
+		HeartBeat:       time.Now(),
+	})
+}
+
+func (w *worker) AddJobRecordStart(d *object.JobRecordRequest) error {
+	rep := repository.NewRepLocal(repository.NewCommon().GetLocalDbConfig())
+	return rep.AddJobRecordStart(&object.JobRecord{
+		JobId:     d.JobId,
+		ClientId:  d.ClientId,
+		JobKey:    d.JobKey,
+		JobCron:   d.JobCron,
+		StartTime: time.Now(),
+		EndTime:   goToolMSSqlHelper.GetDefaultOprTime(),
+	})
+}
+
+func (w *worker) UpdateJobRecordEnd(d *object.JobRecordRequest) error {
+	rep := repository.NewRepLocal(repository.NewCommon().GetLocalDbConfig())
+	return rep.AddJobRecordStart(&object.JobRecord{
+		JobId:     d.JobId,
+		ClientId:  d.ClientId,
+		JobKey:    d.JobKey,
+		JobCron:   d.JobCron,
+		StartTime: goToolMSSqlHelper.GetDefaultOprTime(),
+		EndTime:   time.Now(),
 	})
 }

@@ -56,10 +56,10 @@ func (ws *webServer) irisInit(app *iris.Application) {
 
 //iris添加路由
 func (ws *webServer) irisRouter(app *iris.Application) {
-	routerBase := wsRouter.NewRouterBase(app)
-	routerBase.AddBase()
+	wsRouter.NewRouterBase(app).AddRouter()
 	wsRouter.NewRouterHeartBeat(app).AddRouter()
 	wsRouter.NewRouterClient(app).AddRouter()
+	wsRouter.NewRouterJob(app).AddRouter()
 }
 
 //iris启动

@@ -62,6 +62,33 @@ const (
 		"			?,?,?,?,?, " +
 		"			?) " +
 		"	End"
+	sqlUpdateHeartBeat = "" +
+		"IF EXISTS (SELECT * FROM [HeartBeat] WHERE [clientid] = ?) " +
+		"	Begin " +
+		"		UPDATE [HeartBeat] " +
+		"		SET [clientId]=?,[heartbeatClient]=?,[heartbeat]=? " +
+		"		WHERE [clientid] = ? " +
+		"	End " +
+		"ELSE " +
+		"	Begin " +
+		"		INSERT INTO [HeartBeat]([clientId],[heartbeatClient],[heartbeat]) " +
+		"		VALUES (?,?,?) " +
+		"	End"
+	sqlAddJobRecordStartInfo = "" +
+		"INSERT INTO [JobRecord]([jobid],[clientId],[jobkey],[jobcron],[starttime],[endtime]) " +
+		"VALUES (?,?,?,?,?,?)"
+	sqlUpdateJobRecordEndInfo = "" +
+		"IF EXISTS (SELECT * FROM [JobRecord] WHERE [jobid] = ?) " +
+		"	Begin " +
+		"		UPDATE [JobRecord] " +
+		"		SET [endtime] = ? " +
+		"		WHERE [jobid] = ? " +
+		"	End " +
+		"Else " +
+		"	Begin " +
+		"		INSERT INTO [JobRecord]([jobid],[clientId],[jobkey],[jobcron],[starttime],[endtime]) " +
+		"		VALUES (?,?,?,?,?,?) " +
+		"	End"
 )
 
 type repLocal struct {
@@ -193,6 +220,44 @@ func (r *repLocal) UpdateSvrV3Info(d *object.SvrV3Info) error {
 		d.LastUpdate)
 	if err != nil {
 		errMsg := fmt.Sprintf("UpdateSvrV3Info err: %s", err.Error())
+		log.Error(errMsg)
+		return errors.New(errMsg)
+	}
+	return nil
+}
+
+func (r *repLocal) UpdateHeartBeat(d *object.HeartBeat) error {
+	err := goToolMSSqlHelper.SetRowsBySQL(r.dbConfig, sqlUpdateHeartBeat,
+		d.ClientId,
+		d.ClientId, d.HeartBeatClient, d.HeartBeat,
+		d.ClientId,
+		d.ClientId, d.HeartBeatClient, d.HeartBeat)
+	if err != nil {
+		errMsg := fmt.Sprintf("UpdateHeartBeat err: %s", err.Error())
+		log.Error(errMsg)
+		return errors.New(errMsg)
+	}
+	return nil
+}
+
+func (r *repLocal) AddJobRecordStart(d *object.JobRecord) error {
+	err := goToolMSSqlHelper.SetRowsBySQL(r.dbConfig, sqlAddJobRecordStartInfo,
+		d.JobId, d.ClientId, d.JobKey, d.JobCron, d.StartTime, d.EndTime)
+	if err != nil {
+		errMsg := fmt.Sprintf("AddJobRecordStart err: %s", err.Error())
+		log.Error(errMsg)
+		return errors.New(errMsg)
+	}
+	return nil
+}
+
+func (r *repLocal) UpdateJobRecordEnd(d *object.JobRecord) error {
+	err := goToolMSSqlHelper.SetRowsBySQL(r.dbConfig, sqlUpdateJobRecordEndInfo,
+		d.JobId,
+		d.EndTime, d.JobId,
+		d.JobId, d.ClientId, d.JobKey, d.JobCron, d.StartTime, d.EndTime)
+	if err != nil {
+		errMsg := fmt.Sprintf("UpdateJobRecordEnd err: %s", err.Error())
 		log.Error(errMsg)
 		return errors.New(errMsg)
 	}
