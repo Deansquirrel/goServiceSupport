@@ -40,5 +40,6 @@ func (r *heartBeat) update(ctx iris.Context) {
 		return
 	}
 	r.c.WriteSuccess(ctx)
+	//TODO 返回内容增加ClientControl相关，用于控制客户端退出
 	return
 }

@@ -263,3 +263,5 @@ func (r *repLocal) UpdateJobRecordEnd(d *object.JobRecord) error {
 	}
 	return nil
 }
+
+//TODO 获取ClientControl，用于心跳返回，控制客户端退出
