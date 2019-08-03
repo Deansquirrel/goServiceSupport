@@ -87,7 +87,6 @@ func (w *worker) AddJobRecordStart(d *object.JobRecordRequest) error {
 		JobId:     d.JobId,
 		ClientId:  d.ClientId,
 		JobKey:    d.JobKey,
-		JobCron:   d.JobCron,
 		StartTime: time.Now(),
 		EndTime:   goToolMSSqlHelper.GetDefaultOprTime(),
 	})
@@ -95,11 +94,10 @@ func (w *worker) AddJobRecordStart(d *object.JobRecordRequest) error {
 
 func (w *worker) UpdateJobRecordEnd(d *object.JobRecordRequest) error {
 	rep := repository.NewRepLocal(repository.NewCommon().GetLocalDbConfig())
-	return rep.AddJobRecordStart(&object.JobRecord{
+	return rep.UpdateJobRecordEnd(&object.JobRecord{
 		JobId:     d.JobId,
 		ClientId:  d.ClientId,
 		JobKey:    d.JobKey,
-		JobCron:   d.JobCron,
 		StartTime: goToolMSSqlHelper.GetDefaultOprTime(),
 		EndTime:   time.Now(),
 	})

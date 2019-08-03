@@ -75,8 +75,8 @@ const (
 		"		VALUES (?,?,?) " +
 		"	End"
 	sqlAddJobRecordStartInfo = "" +
-		"INSERT INTO [JobRecord]([jobid],[clientId],[jobkey],[jobcron],[starttime],[endtime]) " +
-		"VALUES (?,?,?,?,?,?)"
+		"INSERT INTO [JobRecord]([jobid],[clientId],[jobkey],[starttime],[endtime]) " +
+		"VALUES (?,?,?,?,?)"
 	sqlUpdateJobRecordEndInfo = "" +
 		"IF EXISTS (SELECT * FROM [JobRecord] WHERE [jobid] = ?) " +
 		"	Begin " +
@@ -86,8 +86,8 @@ const (
 		"	End " +
 		"Else " +
 		"	Begin " +
-		"		INSERT INTO [JobRecord]([jobid],[clientId],[jobkey],[jobcron],[starttime],[endtime]) " +
-		"		VALUES (?,?,?,?,?,?) " +
+		"		INSERT INTO [JobRecord]([jobid],[clientId],[jobkey],[starttime],[endtime]) " +
+		"		VALUES (?,?,?,?,?) " +
 		"	End"
 )
 
@@ -242,7 +242,7 @@ func (r *repLocal) UpdateHeartBeat(d *object.HeartBeat) error {
 
 func (r *repLocal) AddJobRecordStart(d *object.JobRecord) error {
 	err := goToolMSSqlHelper.SetRowsBySQL(r.dbConfig, sqlAddJobRecordStartInfo,
-		d.JobId, d.ClientId, d.JobKey, d.JobCron, d.StartTime, d.EndTime)
+		d.JobId, d.ClientId, d.JobKey, d.StartTime, d.EndTime)
 	if err != nil {
 		errMsg := fmt.Sprintf("AddJobRecordStart err: %s", err.Error())
 		log.Error(errMsg)
@@ -255,7 +255,7 @@ func (r *repLocal) UpdateJobRecordEnd(d *object.JobRecord) error {
 	err := goToolMSSqlHelper.SetRowsBySQL(r.dbConfig, sqlUpdateJobRecordEndInfo,
 		d.JobId,
 		d.EndTime, d.JobId,
-		d.JobId, d.ClientId, d.JobKey, d.JobCron, d.StartTime, d.EndTime)
+		d.JobId, d.ClientId, d.JobKey, d.StartTime, d.EndTime)
 	if err != nil {
 		errMsg := fmt.Sprintf("UpdateJobRecordEnd err: %s", err.Error())
 		log.Error(errMsg)

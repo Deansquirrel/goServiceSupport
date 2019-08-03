@@ -40,7 +40,6 @@ type JobRecord struct {
 	JobId     string
 	ClientId  string
 	JobKey    string
-	JobCron   string
 	StartTime time.Time
 	EndTime   time.Time
 }

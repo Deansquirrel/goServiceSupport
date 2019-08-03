@@ -3,6 +3,7 @@ package router
 import (
 	"fmt"
 	"github.com/Deansquirrel/goServiceSupport/object"
+	"github.com/Deansquirrel/goServiceSupport/worker"
 	"github.com/kataras/iris"
 )
 
@@ -32,4 +33,12 @@ func (r *heartBeat) update(ctx iris.Context) {
 		r.c.WriteError(ctx, -1, fmt.Sprintf("Bad Request: %s", err.Error()))
 		return
 	}
+	w := worker.NewWorker()
+	err = w.UpdateHeartBeat(&d)
+	if err != nil {
+		r.c.WriteError(ctx, -1, err.Error())
+		return
+	}
+	r.c.WriteSuccess(ctx)
+	return
 }
