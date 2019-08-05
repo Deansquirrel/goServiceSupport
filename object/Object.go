@@ -9,9 +9,13 @@ type ClientTypeInfo struct {
 	LastVersion string
 }
 
-type ClientFlashInfo struct {
+type ClientInfo struct {
 	ClientId      string
+	ClientType    string
 	ClientVersion string
+	HostName      string
+	DbId          int
+	DbName        string
 	InternetIP    string
 	LastUpdate    time.Time
 }

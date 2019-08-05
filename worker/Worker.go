@@ -18,22 +18,22 @@ func NewWorker() *worker {
 	}
 }
 
-func (w *worker) GetClientId(clientType string, hostName string, dbId int, dbName string) (string, error) {
-	rep := repository.NewRepLocal(repository.NewCommon().GetLocalDbConfig())
-	idList, err := rep.GetClientId(clientType, hostName, dbId, dbName)
-	if err != nil {
-		return "", err
-	}
-	if len(idList) > 0 {
-		return idList[0], nil
-	}
-	newId, err := rep.NewClientId(clientType, hostName, dbId, dbName)
-	if err != nil {
-		return "", err
-	} else {
-		return newId, nil
-	}
-}
+//func (w *worker) GetClientId(clientType string, hostName string, dbId int, dbName string) (string, error) {
+//	rep := repository.NewRepLocal(repository.NewCommon().GetLocalDbConfig())
+//	idList, err := rep.GetClientId(clientType, hostName, dbId, dbName)
+//	if err != nil {
+//		return "", err
+//	}
+//	if len(idList) > 0 {
+//		return idList[0], nil
+//	}
+//	newId, err := rep.NewClientId(clientType, hostName, dbId, dbName)
+//	if err != nil {
+//		return "", err
+//	} else {
+//		return newId, nil
+//	}
+//}
 
 func (w *worker) GetClientType(clientType string) ([]*object.ClientTypeInfo, error) {
 	rep := repository.NewRepLocal(repository.NewCommon().GetLocalDbConfig())
@@ -45,11 +45,15 @@ func (w *worker) AddNewClientType(clientType string) error {
 	return rep.NewClientType(clientType, 0, 0, "")
 }
 
-func (w *worker) RefreshClientFlashInfo(d *object.ClientFlashInfoRequest) error {
+func (w *worker) RefreshClientInfo(d *object.ClientInfoRequest) error {
 	rep := repository.NewRepLocal(repository.NewCommon().GetLocalDbConfig())
-	return rep.UpdateClientFlashInfo(&object.ClientFlashInfo{
+	return rep.UpdateClientInfo(&object.ClientInfo{
 		ClientId:      d.ClientId,
+		ClientType:    d.ClientType,
 		ClientVersion: d.ClientVersion,
+		HostName:      d.HostName,
+		DbId:          d.DbId,
+		DbName:        d.DbName,
 		InternetIP:    d.InternetIP,
 		LastUpdate:    time.Now(),
 	})

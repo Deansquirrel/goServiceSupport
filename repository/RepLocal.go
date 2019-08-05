@@ -4,26 +4,24 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Deansquirrel/goServiceSupport/object"
-	"github.com/Deansquirrel/goToolCommon"
 	"github.com/Deansquirrel/goToolMSSql"
 	"github.com/Deansquirrel/goToolMSSqlHelper"
-	"strings"
 )
 
 import log "github.com/Deansquirrel/goToolLog"
 
 const (
-	sqlNewClientId = "" +
-		"INSERT INTO [clientinfo]([clientid],[clienttype],[hostname],[dbid],[dbname],[lastupdate]) " +
-		"VALUES (?,?,?,?,?,GETDATE())"
-	sqlGetClientId = "" +
-		"SELECT [clientid] " +
-		"FROM [clientinfo] " +
-		"WHERE 1=1 " +
-		"	AND [clienttype] = ? " +
-		"	AND [hostname] = ? " +
-		"	AND [dbid] = ? " +
-		"	AND [dbname] = ?"
+	//sqlNewClientId = "" +
+	//	"INSERT INTO [clientinfo]([clientid],[clienttype],[hostname],[dbid],[dbname],[lastupdate]) " +
+	//	"VALUES (?,?,?,?,?,GETDATE())"
+	//sqlGetClientId = "" +
+	//	"SELECT [clientid] " +
+	//	"FROM [clientinfo] " +
+	//	"WHERE 1=1 " +
+	//	"	AND [clienttype] = ? " +
+	//	"	AND [hostname] = ? " +
+	//	"	AND [dbid] = ? " +
+	//	"	AND [dbname] = ?"
 	sqlGetClientType = "" +
 		"SELECT [clienttype],[issvrv3],[hasdb],[lastversion] " +
 		"FROM [clienttypeinfo] " +
@@ -31,18 +29,6 @@ const (
 	sqlNewClientType = "" +
 		"INSERT INTO [clienttypeinfo]([clienttype],[issvrv3],[hasdb],[lastversion]) " +
 		"VALUES (?,?,?,?)"
-	sqlUpdateClientFlashInfo = "" +
-		"IF EXISTS (SELECT * FROM [ClientFlashInfo] WHERE [clientid] = ?) " +
-		"	Begin " +
-		"		UPDATE [ClientFlashInfo] " +
-		"		SET [clientid] = ?,[clientversion]= ?,[internetip] = ?,[lastupdate] = ? " +
-		"		WHERE [clientid] = ? " +
-		"	End " +
-		"ELSE " +
-		"	Begin " +
-		"		INSERT INTO [ClientFlashInfo]([clientid],[clientversion],[internetip],[lastupdate]) " +
-		"		VALUES (?,?,?,?) " +
-		"	End"
 	sqlUpdateSvrV3Info = "" +
 		"IF EXISTS (SELECT * FROM [SvrV3Info] WHERE [clientid] = ?) " +
 		"	Begin " +
@@ -89,6 +75,22 @@ const (
 		"		INSERT INTO [JobRecord]([jobid],[clientId],[jobkey],[starttime],[endtime]) " +
 		"		VALUES (?,?,?,?,?) " +
 		"	End"
+
+	sqlUpdateClientInfo = "" +
+		"IF EXISTS (SELECT * FROM [clientinfo] WHERE [clientid] = ?) " +
+		"	Begin " +
+		"		UPDATE [clientinfo] " +
+		"		SET [clientid]=?,[clienttype]=?,[clientversion]=?,[hostname]=?,[dbid]=?, " +
+		"			[dbname]=?,[internetip]=?,[lastupdate]=? " +
+		"		WHERE [clientid] = ? " +
+		"	End " +
+		"Else " +
+		"	Begin " +
+		"		INSERT INTO [clientinfo]([clientid],[clienttype],[clientversion],[hostname],[dbid], " +
+		"			[dbname],[internetip],[lastupdate]) " +
+		"		VALUES (?,?,?,?,?," +
+		"			?,?,?) " +
+		"	End"
 )
 
 type repLocal struct {
@@ -101,52 +103,52 @@ func NewRepLocal(config *goToolMSSql.MSSqlConfig) *repLocal {
 	}
 }
 
-func (r *repLocal) NewClientId(clientType, hostName string, dbId int, dbName string) (string, error) {
-	newId := r.newClientId()
-	err := goToolMSSqlHelper.SetRowsBySQL(r.dbConfig, sqlNewClientId,
-		newId, clientType, hostName, dbId, dbName)
-	if err != nil {
-		errMsg := fmt.Sprintf("create new client id err: %s", err.Error())
-		log.Error(errMsg)
-		return "", errors.New(errMsg)
-	}
-	return newId, nil
-}
+//func (r *repLocal) NewClientId(clientType, hostName string, dbId int, dbName string) (string, error) {
+//	newId := r.newClientId()
+//	err := goToolMSSqlHelper.SetRowsBySQL(r.dbConfig, sqlNewClientId,
+//		newId, clientType, hostName, dbId, dbName)
+//	if err != nil {
+//		errMsg := fmt.Sprintf("create new client id err: %s", err.Error())
+//		log.Error(errMsg)
+//		return "", errors.New(errMsg)
+//	}
+//	return newId, nil
+//}
 
-func (r *repLocal) newClientId() string {
-	id := goToolCommon.Guid()
-	return strings.Replace(id, "-", "", -1)
-}
+//func (r *repLocal) newClientId() string {
+//	id := goToolCommon.Guid()
+//	return strings.Replace(id, "-", "", -1)
+//}
 
-func (r *repLocal) GetClientId(clientType, hostName string, dbId int, dbName string) ([]string, error) {
-	rows, err := goToolMSSqlHelper.GetRowsBySQL(r.dbConfig, sqlGetClientId,
-		clientType, hostName, dbId, dbName)
-	if err != nil {
-		errMsg := fmt.Sprintf("get client id err: %s", err.Error())
-		log.Error(errMsg)
-		return nil, errors.New(errMsg)
-	}
-	defer func() {
-		_ = rows.Close()
-	}()
-	rList := make([]string, 0)
-	for rows.Next() {
-		var id string
-		err := rows.Scan(&id)
-		if err != nil {
-			errMsg := fmt.Sprintf("%s read data err: %s", "GetClientId", err.Error())
-			log.Error(errMsg)
-			return nil, errors.New(errMsg)
-		}
-		rList = append(rList, id)
-	}
-	if rows.Err() != nil {
-		errMsg := fmt.Sprintf("%s read data err: %s", "GetClientId", rows.Err().Error())
-		log.Error(errMsg)
-		return nil, errors.New(errMsg)
-	}
-	return rList, nil
-}
+//func (r *repLocal) GetClientId(clientType, hostName string, dbId int, dbName string) ([]string, error) {
+//	rows, err := goToolMSSqlHelper.GetRowsBySQL(r.dbConfig, sqlGetClientId,
+//		clientType, hostName, dbId, dbName)
+//	if err != nil {
+//		errMsg := fmt.Sprintf("get client id err: %s", err.Error())
+//		log.Error(errMsg)
+//		return nil, errors.New(errMsg)
+//	}
+//	defer func() {
+//		_ = rows.Close()
+//	}()
+//	rList := make([]string, 0)
+//	for rows.Next() {
+//		var id string
+//		err := rows.Scan(&id)
+//		if err != nil {
+//			errMsg := fmt.Sprintf("%s read data err: %s", "GetClientId", err.Error())
+//			log.Error(errMsg)
+//			return nil, errors.New(errMsg)
+//		}
+//		rList = append(rList, id)
+//	}
+//	if rows.Err() != nil {
+//		errMsg := fmt.Sprintf("%s read data err: %s", "GetClientId", rows.Err().Error())
+//		log.Error(errMsg)
+//		return nil, errors.New(errMsg)
+//	}
+//	return rList, nil
+//}
 
 func (r *repLocal) GetClientType(id string) ([]*object.ClientTypeInfo, error) {
 	rows, err := goToolMSSqlHelper.GetRowsBySQL(r.dbConfig, sqlGetClientType, id)
@@ -194,14 +196,16 @@ func (r *repLocal) NewClientType(clientType string, isSvrV3 int, hasDb int, last
 	return nil
 }
 
-func (r *repLocal) UpdateClientFlashInfo(cfi *object.ClientFlashInfo) error {
-	err := goToolMSSqlHelper.SetRowsBySQL(r.dbConfig, sqlUpdateClientFlashInfo,
-		cfi.ClientId,
-		cfi.ClientId, cfi.ClientVersion, cfi.InternetIP, cfi.LastUpdate,
-		cfi.ClientId,
-		cfi.ClientId, cfi.ClientVersion, cfi.InternetIP, cfi.LastUpdate)
+func (r *repLocal) UpdateClientInfo(d *object.ClientInfo) error {
+	err := goToolMSSqlHelper.SetRowsBySQL(r.dbConfig, sqlUpdateClientInfo,
+		d.ClientId,
+		d.ClientId, d.ClientType, d.ClientVersion, d.HostName, d.DbId,
+		d.DbName, d.InternetIP, d.LastUpdate,
+		d.ClientId,
+		d.ClientId, d.ClientType, d.ClientVersion, d.HostName, d.DbId,
+		d.DbName, d.InternetIP, d.LastUpdate)
 	if err != nil {
-		errMsg := fmt.Sprintf("UpdateClientFlashInfo err: %s", err.Error())
+		errMsg := fmt.Sprintf("UpdateClientInfo err: %s", err.Error())
 		log.Error(errMsg)
 		return errors.New(errMsg)
 	}
@@ -265,3 +269,6 @@ func (r *repLocal) UpdateJobRecordEnd(d *object.JobRecord) error {
 }
 
 //TODO 获取ClientControl，用于心跳返回，控制客户端退出
+//TODO 定期删除JobRecord
+//TODO ClientTypeInfo记录维护（新类型插入）
+//TODO ClientControl内容维护（界面）
