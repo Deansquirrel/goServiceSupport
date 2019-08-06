@@ -314,7 +314,6 @@ func (r *repLocal) GetClientControl(id string) ([]*object.ClientControl, error) 
 	return rList, nil
 }
 
-//TODO 获取ClientControl，用于心跳返回，控制客户端退出
 //TODO 定期删除JobRecord
 //TODO 定期删除无效心跳
 //TODO ClientControl内容维护（界面）
