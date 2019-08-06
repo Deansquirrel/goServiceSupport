@@ -47,3 +47,10 @@ type JobRecord struct {
 	StartTime time.Time
 	EndTime   time.Time
 }
+
+type ClientControl struct {
+	ClientId        string
+	IsForbidden     int
+	ForbiddenReason string
+	LastUpdate      time.Time
+}

@@ -106,3 +106,8 @@ func (w *worker) UpdateJobRecordEnd(d *object.JobRecordRequest) error {
 		EndTime:   time.Now(),
 	})
 }
+
+func (w *worker) GetClientControl(id string) ([]*object.ClientControl, error) {
+	rep := repository.NewRepLocal(repository.NewCommon().GetLocalDbConfig())
+	return rep.GetClientControl(id)
+}

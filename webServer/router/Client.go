@@ -68,6 +68,13 @@ func (r *client) refreshInfo(ctx iris.Context) {
 		return
 	}
 	r.c.WriteSuccess(ctx)
+	go func() {
+		//ClientTypeInfo记录维护（检查新类型插入）
+		rList, err := w.GetClientType(d.ClientType)
+		if err == nil && rList != nil && len(rList) < 1 {
+			_ = w.AddNewClientType(d.ClientType)
+		}
+	}()
 	return
 }
 

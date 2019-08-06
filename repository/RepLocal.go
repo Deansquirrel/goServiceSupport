@@ -6,6 +6,7 @@ import (
 	"github.com/Deansquirrel/goServiceSupport/object"
 	"github.com/Deansquirrel/goToolMSSql"
 	"github.com/Deansquirrel/goToolMSSqlHelper"
+	"time"
 )
 
 import log "github.com/Deansquirrel/goToolLog"
@@ -91,6 +92,11 @@ const (
 		"		VALUES (?,?,?,?,?," +
 		"			?,?,?) " +
 		"	End"
+
+	sqlGetClientControl = "" +
+		"SELECT [clientid],[isforbidden],[forbiddenreason],[lastupdate] " +
+		"FROM [clientcontrol] " +
+		"WHERE [clientid] = ?"
 )
 
 type repLocal struct {
@@ -268,7 +274,43 @@ func (r *repLocal) UpdateJobRecordEnd(d *object.JobRecord) error {
 	return nil
 }
 
+func (r *repLocal) GetClientControl(id string) ([]*object.ClientControl, error) {
+	rows, err := goToolMSSqlHelper.GetRowsBySQL(r.dbConfig, sqlGetClientControl, id)
+	if err != nil {
+		errMsg := fmt.Sprintf("get client control %s err: %s", id, err.Error())
+		log.Error(errMsg)
+		return nil, errors.New(errMsg)
+	}
+	defer func() {
+		_ = rows.Close()
+	}()
+	rList := make([]*object.ClientControl, 0)
+	var clientId, forbiddenReason string
+	var isForbidden int
+	var lastUpdate time.Time
+	for rows.Next() {
+		err := rows.Scan(&clientId, &isForbidden, &forbiddenReason, &lastUpdate)
+		if err != nil {
+			errMsg := fmt.Sprintf("%s read data err: %s", "GetClientControl", err.Error())
+			log.Error(errMsg)
+			return nil, errors.New(errMsg)
+		}
+		rList = append(rList, &object.ClientControl{
+			ClientId:        clientId,
+			IsForbidden:     isForbidden,
+			ForbiddenReason: forbiddenReason,
+			LastUpdate:      lastUpdate,
+		})
+	}
+	if rows.Err() != nil {
+		errMsg := fmt.Sprintf("%s read data err: %s", "GetClientControl", rows.Err().Error())
+		log.Error(errMsg)
+		return nil, errors.New(errMsg)
+	}
+	return rList, nil
+}
+
 //TODO 获取ClientControl，用于心跳返回，控制客户端退出
 //TODO 定期删除JobRecord
-//TODO ClientTypeInfo记录维护（新类型插入）
+//TODO 定期删除无效心跳
 //TODO ClientControl内容维护（界面）
