@@ -1,12 +1,15 @@
 package worker
 
 import (
+	"fmt"
 	"github.com/Deansquirrel/goServiceSupport/object"
 	"github.com/Deansquirrel/goServiceSupport/repository"
 	"github.com/Deansquirrel/goToolMSSql"
 	"github.com/Deansquirrel/goToolMSSqlHelper"
 	"time"
 )
+
+import log "github.com/Deansquirrel/goToolLog"
 
 type worker struct {
 	localDbConfig *goToolMSSql.MSSqlConfig
@@ -110,4 +113,12 @@ func (w *worker) UpdateJobRecordEnd(d *object.JobRecordRequest) error {
 func (w *worker) GetClientControl(id string) ([]*object.ClientControl, error) {
 	rep := repository.NewRepLocal(repository.NewCommon().GetLocalDbConfig())
 	return rep.GetClientControl(id)
+}
+
+func (w *worker) ClearJobRecord() {
+	rep := repository.NewRepLocal(repository.NewCommon().GetLocalDbConfig())
+	err := rep.ClearJobRecord()
+	if err != nil {
+		log.Error(fmt.Sprintf("ClearJobRecord err: %s", err.Error()))
+	}
 }

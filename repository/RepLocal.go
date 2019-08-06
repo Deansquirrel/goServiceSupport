@@ -3,7 +3,9 @@ package repository
 import (
 	"errors"
 	"fmt"
+	"github.com/Deansquirrel/goServiceSupport/global"
 	"github.com/Deansquirrel/goServiceSupport/object"
+	"github.com/Deansquirrel/goToolCommon"
 	"github.com/Deansquirrel/goToolMSSql"
 	"github.com/Deansquirrel/goToolMSSqlHelper"
 	"time"
@@ -100,6 +102,10 @@ const (
 		"SELECT [clientid],[isforbidden],[forbiddenreason],[lastupdate] " +
 		"FROM [clientcontrol] " +
 		"WHERE [clientid] = ?"
+
+	sqlClearJobRecord = "" +
+		"DELETE FROM [jobrecord] " +
+		"WHERE [starttime] < ? or [endtime] < ?"
 )
 
 type repLocal struct {
@@ -314,6 +320,19 @@ func (r *repLocal) GetClientControl(id string) ([]*object.ClientControl, error) 
 	return rList, nil
 }
 
-//TODO 定期删除JobRecord
+//定期删除JobRecord
+func (r *repLocal) ClearJobRecord() error {
+	t := time.Now().Add(-goToolCommon.GetDurationByDay(global.SysConfig.SSConfig.SaveJobRecord))
+	err := goToolMSSqlHelper.SetRowsBySQL(r.dbConfig, sqlClearJobRecord,
+		goToolCommon.GetDateTimeStrWithMillisecond(t),
+		goToolCommon.GetDateTimeStrWithMillisecond(t))
+	if err != nil {
+		errMsg := fmt.Sprintf("ClearJobRecord err: %s", err.Error())
+		log.Error(errMsg)
+		return errors.New(errMsg)
+	}
+	return nil
+}
+
 //TODO 定期删除无效心跳
 //TODO ClientControl内容维护（界面）

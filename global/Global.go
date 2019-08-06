@@ -8,9 +8,10 @@ import (
 const (
 	//PreVersion = "1.0.0 Build20190806"
 	//TestVersion = "0.0.0 Build20190101"
-	Version   = "0.0.0 Build20190101"
-	Type      = "ServiceSupport"
-	SecretKey = "ServiceSupport"
+	Version            = "0.0.0 Build20190101"
+	Type               = "ServiceSupport"
+	SecretKey          = "ServiceSupport"
+	ClearJobRecordCron = "0 0 * * * ?"
 )
 
 var Ctx context.Context

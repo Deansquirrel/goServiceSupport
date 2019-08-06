@@ -12,6 +12,14 @@ dbName=""
 user=""
 pwd=""
 
+[ssConfig]
+# JobRecord保留天数
+saveJobRecord=0
+# 心跳失效时长（秒）
+heartBeatForbidden=0
+# 无效心跳保留天数
+saveForbiddenHeartBeat=0
+
 [iris]
 # 端口
 port=8000

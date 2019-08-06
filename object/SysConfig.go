@@ -10,10 +10,11 @@ import log "github.com/Deansquirrel/goToolLog"
 
 //系统设置
 type SystemConfig struct {
-	Total   systemConfigTotal   `toml:"total"`
-	LocalDb systemConfigLocalDB `toml:"localDb"`
-	Service systemConfigService `toml:"service"`
-	Iris    systemConfigIris    `toml:"iris"`
+	Total    systemConfigTotal    `toml:"total"`
+	LocalDb  systemConfigLocalDB  `toml:"localDb"`
+	SSConfig systemConfigSSConfig `toml:"ssConfig"`
+	Service  systemConfigService  `toml:"service"`
+	Iris     systemConfigIris     `toml:"iris"`
 }
 
 func (sc *SystemConfig) FormatConfig() {
@@ -48,6 +49,25 @@ func (t *systemConfigTotal) FormatConfig() {
 	//设置字符串转换为小写
 	t.LogLevel = strings.ToLower(t.LogLevel)
 	t.LogLevel = t.checkLogLevel(t.LogLevel)
+}
+
+//ssConfig
+type systemConfigSSConfig struct {
+	SaveJobRecord          int `toml:"saveJobRecord"`
+	HeartBeatForbidden     int `toml:"heartBeatForbidden"`
+	SaveForbiddenHeartBeat int `toml:"saveForbiddenHeartBeat"`
+}
+
+func (sc *systemConfigSSConfig) FormatConfig() {
+	if sc.SaveJobRecord < 7 {
+		sc.SaveJobRecord = 7
+	}
+	if sc.HeartBeatForbidden < 300 {
+		sc.HeartBeatForbidden = 300
+	}
+	if sc.SaveForbiddenHeartBeat < 7 {
+		sc.SaveForbiddenHeartBeat = 7
+	}
 }
 
 //校验SysConfig中iris日志级别设置

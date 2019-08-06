@@ -21,6 +21,7 @@ func init() {
 	global.SysConfig = &object.SystemConfig{}
 
 	global.Ctx, global.Cancel = context.WithCancel(context.Background())
+
 }
 
 func main() {
