@@ -39,7 +39,19 @@ func (r *heartBeat) update(ctx iris.Context) {
 		r.c.WriteError(ctx, -1, err.Error())
 		return
 	}
-	r.c.WriteSuccess(ctx)
-	//TODO 返回内容增加ClientControl相关，用于控制客户端退出
+	resp := object.HeartBeatResponse{
+		ErrCode: int(object.ErrTypeCodeNoError),
+		ErrMsg:  string(object.ErrTypeMsgNoError),
+	}
+	ccList, err := w.GetClientControl(d.ClientId)
+	if err != nil {
+		r.c.WriteSuccess(ctx)
+	} else {
+		if len(ccList) > 0 {
+			resp.IsForbidden = ccList[0].IsForbidden
+			resp.ForbiddenReason = ccList[0].ForbiddenReason
+		}
+	}
+	r.c.WriteResponse(ctx, resp)
 	return
 }
