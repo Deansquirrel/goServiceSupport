@@ -28,8 +28,11 @@ const (
 		"FROM [clienttypeinfo] " +
 		"WHERE [clienttype]=?"
 	sqlNewClientType = "" +
-		"INSERT INTO [clienttypeinfo]([clienttype],[issvrv3],[hasdb],[lastversion]) " +
-		"VALUES (?,?,?,?)"
+		"IF NOT EXISTS (SELECT * FROM [clienttypeinfo] WHERE [clienttype] = ?) " +
+		"	Begin " +
+		"		INSERT INTO [clienttypeinfo]([clienttype],[issvrv3],[hasdb],[lastversion]) " +
+		"		VALUES (?,?,?,?) " +
+		"	End"
 	sqlUpdateSvrV3Info = "" +
 		"IF EXISTS (SELECT * FROM [SvrV3Info] WHERE [clientid] = ?) " +
 		"	Begin " +
@@ -193,6 +196,7 @@ func (r *repLocal) GetClientType(id string) ([]*object.ClientTypeInfo, error) {
 
 func (r *repLocal) NewClientType(clientType string, isSvrV3 int, hasDb int, lastVersion string) error {
 	err := goToolMSSqlHelper.SetRowsBySQL(r.dbConfig, sqlNewClientType,
+		clientType,
 		clientType, isSvrV3, hasDb, lastVersion)
 	if err != nil {
 		errMsg := fmt.Sprintf("add new client type err: %s", err.Error())
