@@ -8,11 +8,11 @@ import (
 const (
 	//PreVersion = "1.0.0 Build20190806"
 	//TestVersion = "0.0.0 Build20190101"
-	Version                   = "0.0.0 Build20190101"
+	Version                   = "1.0.1 Build20190807"
 	Type                      = "ServiceSupport"
 	SecretKey                 = "ServiceSupport"
-	ClearJobRecordCron        = "5/10 * * * * ?"
-	ClearInvalidHeartBeatCron = "0/10 * * * * ?"
+	ClearJobRecordCron        = "0 0 * * * ?"
+	ClearInvalidHeartBeatCron = "0 0 * * * ?"
 )
 
 var Ctx context.Context
