@@ -106,6 +106,10 @@ const (
 	sqlClearJobRecord = "" +
 		"DELETE FROM [jobrecord] " +
 		"WHERE [starttime] < ? or [endtime] < ?"
+
+	sqlClearInvalidHeartBeat = "" +
+		"DELETE FROM [heartbeat] " +
+		"WHERE [heartbeat] < ?"
 )
 
 type repLocal struct {
@@ -334,5 +338,17 @@ func (r *repLocal) ClearJobRecord() error {
 	return nil
 }
 
-//TODO 定期删除无效心跳
+//定期删除无效心跳
+func (r *repLocal) ClearInvalidHeartBeat() error {
+	t := time.Now().Add(-goToolCommon.GetDurationByDay(global.SysConfig.SSConfig.SaveForbiddenHeartBeat))
+	err := goToolMSSqlHelper.SetRowsBySQL(r.dbConfig, sqlClearInvalidHeartBeat,
+		goToolCommon.GetDateTimeStrWithMillisecond(t))
+	if err != nil {
+		errMsg := fmt.Sprintf("ClearInvalidHeartBeat err: %s", err.Error())
+		log.Error(errMsg)
+		return errors.New(errMsg)
+	}
+	return nil
+}
+
 //TODO ClientControl内容维护（界面）

@@ -40,11 +40,29 @@ func StartService() error {
 
 	go func() {
 		for {
-			err := goToolCron.AddFunc("ClearJobRecord", global.ClearJobRecordCron, worker.NewWorker().ClearJobRecord, func(v interface{}) {
-				log.Error(fmt.Sprintf("panicHandle: %s", v))
-			})
+			err := goToolCron.AddFunc("ClearJobRecord",
+				global.ClearJobRecordCron,
+				worker.NewWorker().ClearJobRecord, func(v interface{}) {
+					log.Error(fmt.Sprintf("panicHandle: %s", v))
+				})
 			if err != nil {
 				log.Error(fmt.Sprintf("add func ClearJobRecord err: %s", err.Error()))
+				time.Sleep(time.Minute)
+				continue
+			}
+			break
+		}
+	}()
+
+	go func() {
+		for {
+			err := goToolCron.AddFunc("ClearInvalidHeartBeat",
+				global.ClearInvalidHeartBeatCron,
+				worker.NewWorker().ClearInvalidHeartBeat, func(v interface{}) {
+					log.Error(fmt.Sprintf("panicHandle: %s", v))
+				})
+			if err != nil {
+				log.Error(fmt.Sprintf("add func ClearInvalidHeartBeat err: %s", err.Error()))
 				time.Sleep(time.Minute)
 				continue
 			}

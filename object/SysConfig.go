@@ -20,6 +20,7 @@ type SystemConfig struct {
 func (sc *SystemConfig) FormatConfig() {
 	sc.Total.FormatConfig()
 	sc.LocalDb.FormatConfig()
+	sc.SSConfig.FormatConfig()
 	sc.Service.FormatConfig()
 	sc.Iris.FormatConfig()
 }
