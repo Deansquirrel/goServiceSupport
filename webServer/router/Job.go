@@ -60,3 +60,5 @@ func (r *job) recordEnd(ctx iris.Context) {
 	r.c.WriteSuccess(ctx)
 	return
 }
+
+//TODO 增加错误记录接口
