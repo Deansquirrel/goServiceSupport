@@ -132,7 +132,7 @@ func (w *worker) AddJobErrRecord(d *object.JobErrRecordRequest) error {
 		return errors.New(errMsg)
 	}
 	rep := repository.NewRepLocal(repository.NewCommon().GetLocalDbConfig())
-	recordList := object.GetJobErrRecordByRequest(d, 5)
+	recordList := object.GetJobErrRecordByRequest(d, 1000)
 	if recordList == nil {
 		errMsg := "GetJobErrRecordByRequest return is nil"
 		log.Error(errMsg)
