@@ -54,3 +54,44 @@ type ClientControl struct {
 	ForbiddenReason string
 	LastUpdate      time.Time
 }
+
+type JobErrRecord struct {
+	JobId           string
+	ErrHh           int
+	ErrMsg          string
+	OccurClientTime time.Time
+	OccurTime       time.Time
+}
+
+func GetJobErrRecordByRequest(d *JobErrRecordRequest, l int) []*JobErrRecord {
+	if d == nil {
+		return nil
+	}
+	rTime := time.Now()
+	rList := make([]*JobErrRecord, 0)
+	errMsg := d.ErrMsg
+	currHh := 0
+	currMsg := ""
+	for {
+		currMsg = ""
+		if len(errMsg) <= l {
+			currMsg = errMsg
+			errMsg = ""
+		} else {
+			currMsg = errMsg[:l]
+			errMsg = errMsg[l:]
+		}
+		rList = append(rList, &JobErrRecord{
+			JobId:           d.JobId,
+			ErrHh:           currHh,
+			ErrMsg:          currMsg,
+			OccurClientTime: d.OccurTime,
+			OccurTime:       rTime,
+		})
+		currHh = currHh + 1
+		if errMsg == "" {
+			break
+		}
+	}
+	return rList
+}

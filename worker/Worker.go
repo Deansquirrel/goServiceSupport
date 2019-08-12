@@ -5,8 +5,11 @@ import (
 	"github.com/Deansquirrel/goServiceSupport/repository"
 	"github.com/Deansquirrel/goToolMSSql"
 	"github.com/Deansquirrel/goToolMSSqlHelper"
+	"github.com/kataras/iris/core/errors"
 	"time"
 )
+
+import log "github.com/Deansquirrel/goToolLog"
 
 type worker struct {
 	localDbConfig *goToolMSSql.MSSqlConfig
@@ -120,4 +123,28 @@ func (w *worker) ClearJobRecord() {
 func (w *worker) ClearInvalidHeartBeat() {
 	rep := repository.NewRepLocal(repository.NewCommon().GetLocalDbConfig())
 	_ = rep.ClearInvalidHeartBeat()
+}
+
+func (w *worker) AddJobErrRecord(d *object.JobErrRecordRequest) error {
+	if d == nil {
+		errMsg := "AddJobErrRecord request is nil"
+		log.Error(errMsg)
+		return errors.New(errMsg)
+	}
+	rep := repository.NewRepLocal(repository.NewCommon().GetLocalDbConfig())
+	recordList := object.GetJobErrRecordByRequest(d, 5)
+	if recordList == nil {
+		errMsg := "GetJobErrRecordByRequest return is nil"
+		log.Error(errMsg)
+		return errors.New(errMsg)
+	}
+	if len(recordList) > 0 {
+		for _, d := range recordList {
+			err := rep.AddJobErrRecord(d)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

@@ -110,6 +110,10 @@ const (
 	sqlClearInvalidHeartBeat = "" +
 		"DELETE FROM [heartbeat] " +
 		"WHERE [heartbeat] < ?"
+
+	sqlAddJobErrRecord = "" +
+		"INSERT INTO  [joberrrecord]([jobid],[errhh],[errmsg],[occurclienttime],[occurtime]) " +
+		"VALUES(?,?,?,?,?)"
 )
 
 type repLocal struct {
@@ -322,6 +326,17 @@ func (r *repLocal) GetClientControl(id string) ([]*object.ClientControl, error) 
 		return nil, errors.New(errMsg)
 	}
 	return rList, nil
+}
+
+func (r *repLocal) AddJobErrRecord(d *object.JobErrRecord) error {
+	err := goToolMSSqlHelper.SetRowsBySQL(r.dbConfig, sqlAddJobErrRecord,
+		d.JobId, d.ErrHh, d.ErrMsg, d.OccurClientTime, d.OccurTime)
+	if err != nil {
+		errMsg := fmt.Sprintf("AddJobErrRecord err: %s", err.Error())
+		log.Error(errMsg)
+		return errors.New(errMsg)
+	}
+	return nil
 }
 
 //定期删除JobRecord

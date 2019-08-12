@@ -24,6 +24,7 @@ func (r *job) AddRouter() {
 	{
 		v.Post("/start", r.recordStart)
 		v.Post("/end", r.recordEnd)
+		v.Post("/err", r.recordErr)
 	}
 }
 
@@ -61,4 +62,20 @@ func (r *job) recordEnd(ctx iris.Context) {
 	return
 }
 
-//TODO 增加错误记录接口
+//错误记录接口
+func (r *job) recordErr(ctx iris.Context) {
+	var d object.JobErrRecordRequest
+	err := ctx.ReadJSON(&d)
+	if err != nil {
+		r.c.WriteError(ctx, -1, fmt.Sprintf("Bad Request: %s", err.Error()))
+		return
+	}
+	w := worker.NewWorker()
+	err = w.AddJobErrRecord(&d)
+	if err != nil {
+		r.c.WriteError(ctx, -1, err.Error())
+		return
+	}
+	r.c.WriteSuccess(ctx)
+	return
+}
