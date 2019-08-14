@@ -79,6 +79,16 @@ func (w *worker) RefreshSvrV3Info(d *object.SvrV3InfoRequest) error {
 	})
 }
 
+func (w *worker) RefreshSvrZ5ZlVersion(d *object.SvrZ5ZlVersionRequest) error {
+	//TODO
+	return nil
+}
+
+func (w *worker) RefreshSvrZ5ZlCompany(d *object.SvrZ5ZlCompanyRequest) error {
+	//TODO
+	return nil
+}
+
 func (w *worker) UpdateHeartBeat(d *object.HeartBeatRequest) error {
 	rep := repository.NewRepLocal(repository.NewCommon().GetLocalDbConfig())
 	return rep.UpdateHeartBeat(&object.HeartBeat{

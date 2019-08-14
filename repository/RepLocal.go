@@ -54,6 +54,8 @@ const (
 		"			?,?,?,?,?, " +
 		"			?) " +
 		"	End"
+	sqlUpdateSvrZ5ZlVersion = "" +
+		""
 	sqlUpdateHeartBeat = "" +
 		"IF EXISTS (SELECT * FROM [HeartBeat] WHERE [clientid] = ?) " +
 		"	Begin " +
@@ -251,6 +253,16 @@ func (r *repLocal) UpdateSvrV3Info(d *object.SvrV3Info) error {
 		log.Error(errMsg)
 		return errors.New(errMsg)
 	}
+	return nil
+}
+
+func (r *repLocal) UpdateSvrZ5ZlVersion(d *object.SvrZ5ZlVersion) error {
+	//TODO
+	return nil
+}
+
+func (r *repLocal) UpdateSvrZ5ZlCompany(d *object.SvrZ5ZlCompany) error {
+	//TODO
 	return nil
 }
 

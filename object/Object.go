@@ -63,6 +63,25 @@ type JobErrRecord struct {
 	OccurTime       time.Time
 }
 
+type SvrZ5ZlVersion struct {
+	ClientId      string
+	ObjectName    string
+	ObjectType    string
+	ObjectVersion string
+	ObjectDate    time.Time
+}
+
+type SvrZ5ZlCompany struct {
+	ClientId    string
+	CoId        int
+	CoAb        string
+	CoCode      string
+	CoType      int
+	CoUserAb    string
+	CoUserCode  string
+	CoAccCrDate time.Time
+}
+
 func GetJobErrRecordByRequest(d *JobErrRecordRequest, l int) []*JobErrRecord {
 	if d == nil {
 		return nil

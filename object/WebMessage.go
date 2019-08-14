@@ -49,6 +49,25 @@ type SvrV3InfoRequest struct {
 	SvDate time.Time `json:"svdate"`
 }
 
+type SvrZ5ZlVersionRequest struct {
+	ClientId      string    `json:"clientid"`
+	ObjectName    string    `json:"objectname"`
+	ObjectType    string    `json:"objecttype"`
+	ObjectVersion string    `json:"objectversion"`
+	ObjectDate    time.Time `json:"objectdate"`
+}
+
+type SvrZ5ZlCompanyRequest struct {
+	ClientId    string    `json:"clientid"`
+	CoId        int       `json:"coid"`
+	CoAb        string    `json:"coab"`
+	CoCode      string    `json:"cocode"`
+	CoType      int       `json:"cotype"`
+	CoUserAb    string    `json:"couserab"`
+	CoUserCode  string    `json:"cousercode"`
+	CoAccCrDate time.Time `json:"coacccrdate"`
+}
+
 type HeartBeatRequest struct {
 	ClientId        string    `json:"clientid"`
 	HeartBeatClient time.Time `json:"heartbeatclient"`
