@@ -417,6 +417,8 @@ func (r *repLocal) ClearJobRecord() error {
 	return nil
 }
 
+//TODO 定期清除错误记录
+
 //定期删除无效心跳
 func (r *repLocal) ClearInvalidHeartBeat() error {
 	t := time.Now().Add(-goToolCommon.GetDurationByDay(global.SysConfig.SSConfig.SaveForbiddenHeartBeat))

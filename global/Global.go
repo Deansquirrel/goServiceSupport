@@ -8,7 +8,7 @@ import (
 const (
 	//PreVersion = "1.0.5 Build20190812"
 	//TestVersion = "0.0.0 Build20190101"
-	Version                   = "0.0.0 Build20190101"
+	Version                   = "1.0.6 Build20190815"
 	Type                      = "ServiceSupport"
 	SecretKey                 = "ServiceSupport"
 	ClearJobRecordCron        = "0 0 * * * ?"
