@@ -34,7 +34,7 @@ func StartService() error {
 		goServiceSupportHelper.SetOtherInfo(
 			repository.NewCommon().GetLocalDbConfig(),
 			0,
-			false)
+			goServiceSupportHelper.SVRNONE)
 		//==========================================================================
 	}()
 

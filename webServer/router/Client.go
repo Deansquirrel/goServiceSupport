@@ -24,6 +24,8 @@ func (r *client) AddRouter() {
 	{
 		v.Post("/info", r.refreshInfo)
 		v.Post("/svrv3", r.refreshSvrV3Info)
+		v.Post("/svrz5zlversion", r.refreshSvrZ5ZlVersion)
+		v.Post("/svrz5zlcompany", r.refreshSvrZ5ZlCompany)
 	}
 }
 
@@ -87,6 +89,40 @@ func (r *client) refreshSvrV3Info(ctx iris.Context) {
 	}
 	w := worker.NewWorker()
 	err = w.RefreshSvrV3Info(&d)
+	if err != nil {
+		r.c.WriteError(ctx, -1, err.Error())
+		return
+	}
+	r.c.WriteSuccess(ctx)
+	return
+}
+
+func (r *client) refreshSvrZ5ZlVersion(ctx iris.Context) {
+	var d object.SvrZ5ZlVersionRequest
+	err := ctx.ReadJSON(&d)
+	if err != nil {
+		r.c.WriteError(ctx, -1, fmt.Sprintf("Bad Request: %s", err.Error()))
+		return
+	}
+	w := worker.NewWorker()
+	err = w.RefreshSvrZ5ZlVersion(&d)
+	if err != nil {
+		r.c.WriteError(ctx, -1, err.Error())
+		return
+	}
+	r.c.WriteSuccess(ctx)
+	return
+}
+
+func (r *client) refreshSvrZ5ZlCompany(ctx iris.Context) {
+	var d object.SvrZ5ZlCompanyRequest
+	err := ctx.ReadJSON(&d)
+	if err != nil {
+		r.c.WriteError(ctx, -1, fmt.Sprintf("Bad Request: %s", err.Error()))
+		return
+	}
+	w := worker.NewWorker()
+	err = w.RefreshSvrZ5ZlCompany(&d)
 	if err != nil {
 		r.c.WriteError(ctx, -1, err.Error())
 		return

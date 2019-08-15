@@ -80,13 +80,30 @@ func (w *worker) RefreshSvrV3Info(d *object.SvrV3InfoRequest) error {
 }
 
 func (w *worker) RefreshSvrZ5ZlVersion(d *object.SvrZ5ZlVersionRequest) error {
-	//TODO
-	return nil
+	rep := repository.NewRepLocal(repository.NewCommon().GetLocalDbConfig())
+	return rep.UpdateSvrZ5ZlVersion(&object.SvrZ5ZlVersion{
+		ClientId:      d.ClientId,
+		ObjectName:    d.ObjectName,
+		ObjectType:    d.ObjectType,
+		ObjectVersion: d.ObjectVersion,
+		ObjectDate:    d.ObjectDate,
+		LastUpdate:    time.Now(),
+	})
 }
 
 func (w *worker) RefreshSvrZ5ZlCompany(d *object.SvrZ5ZlCompanyRequest) error {
-	//TODO
-	return nil
+	rep := repository.NewRepLocal(repository.NewCommon().GetLocalDbConfig())
+	return rep.UpdateSvrZ5ZlCompany(&object.SvrZ5ZlCompany{
+		ClientId:    d.ClientId,
+		CoId:        d.CoId,
+		CoAb:        d.CoAb,
+		CoCode:      d.CoCode,
+		CoType:      d.CoType,
+		CoUserAb:    d.CoUserAb,
+		CoUserCode:  d.CoUserCode,
+		CoAccCrDate: d.CoAccCrDate,
+		LastUpdate:  time.Now(),
+	})
 }
 
 func (w *worker) UpdateHeartBeat(d *object.HeartBeatRequest) error {

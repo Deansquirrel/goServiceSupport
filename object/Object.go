@@ -69,6 +69,7 @@ type SvrZ5ZlVersion struct {
 	ObjectType    string
 	ObjectVersion string
 	ObjectDate    time.Time
+	LastUpdate    time.Time
 }
 
 type SvrZ5ZlCompany struct {
@@ -80,6 +81,7 @@ type SvrZ5ZlCompany struct {
 	CoUserAb    string
 	CoUserCode  string
 	CoAccCrDate time.Time
+	LastUpdate  time.Time
 }
 
 func GetJobErrRecordByRequest(d *JobErrRecordRequest, l int) []*JobErrRecord {

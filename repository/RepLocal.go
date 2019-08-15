@@ -55,7 +55,37 @@ const (
 		"			?) " +
 		"	End"
 	sqlUpdateSvrZ5ZlVersion = "" +
-		""
+		"IF EXISTS (SELECT * FROM [svrz5zlversion] WHERE [clientId]=? AND [objectName]=?) " +
+		"	Begin " +
+		"		UPDATE [svrz5zlversion] " +
+		"		SET [clientId]=?,[objectName]=?,[objectType]=?,[objectVersion]=?,[objectDate]=?," +
+		"			[lastupdate]=? " +
+		"		WHERE [clientId]=? AND [objectName]=? " +
+		"	End " +
+		"ELSE " +
+		"	Begin " +
+		"		INSERT INTO [svrz5zlversion]([clientId],[objectName],[objectType],[objectVersion],[objectDate]," +
+		"				[lastupdate]) " +
+		"		VALUES (" +
+		"			?,?,?,?,?," +
+		"			?) " +
+		"	End"
+	sqlUpdateSvrZ5ZlCompany = "" +
+		"IF EXISTS (SELECT * FROM [svrz5zlcompany] WHERE [clientId]=?) " +
+		"	Begin " +
+		"		UPDATE [svrz5zlcompany] " +
+		"		SET [clientId]=?,[coId]=?,[coAb]=?,[coCode]=?,[coType]=?, " +
+		"			[coUserAb]=?,[coUserCode]=?,[coAccCrDate]=?,[lastUpdate]=? " +
+		"		WHERE [clientId]=? " +
+		"	End " +
+		"ELSE " +
+		"	Begin " +
+		"		INSERT INTO [svrz5zlcompany]([clientId],[coId],[coAb],[coCode],[coType], " +
+		"			[coUserAb],[coUserCode],[coAccCrDate],[lastUpdate]) " +
+		"		VALUES ( " +
+		"			?,?,?,?,?, " +
+		"			?,?,?,?) " +
+		"	End"
 	sqlUpdateHeartBeat = "" +
 		"IF EXISTS (SELECT * FROM [HeartBeat] WHERE [clientid] = ?) " +
 		"	Begin " +
@@ -257,12 +287,34 @@ func (r *repLocal) UpdateSvrV3Info(d *object.SvrV3Info) error {
 }
 
 func (r *repLocal) UpdateSvrZ5ZlVersion(d *object.SvrZ5ZlVersion) error {
-	//TODO
+	err := goToolMSSqlHelper.SetRowsBySQL(r.dbConfig, sqlUpdateSvrZ5ZlVersion,
+		d.ClientId, d.ObjectName,
+		d.ClientId, d.ObjectName, d.ObjectType, d.ObjectVersion, d.ObjectDate,
+		d.LastUpdate,
+		d.ClientId, d.ObjectName,
+		d.ClientId, d.ObjectName, d.ObjectType, d.ObjectVersion, d.ObjectDate,
+		d.LastUpdate)
+	if err != nil {
+		errMsg := fmt.Sprintf("UpdateSvrZ5ZlVersion err: %s", err.Error())
+		log.Error(errMsg)
+		return errors.New(errMsg)
+	}
 	return nil
 }
 
 func (r *repLocal) UpdateSvrZ5ZlCompany(d *object.SvrZ5ZlCompany) error {
-	//TODO
+	err := goToolMSSqlHelper.SetRowsBySQL(r.dbConfig, sqlUpdateSvrZ5ZlCompany,
+		d.ClientId,
+		d.ClientId, d.CoId, d.CoAb, d.CoCode, d.CoType,
+		d.CoUserAb, d.CoUserCode, d.CoAccCrDate, d.LastUpdate,
+		d.ClientId,
+		d.ClientId, d.CoId, d.CoAb, d.CoCode, d.CoType,
+		d.CoUserAb, d.CoUserCode, d.CoAccCrDate, d.LastUpdate)
+	if err != nil {
+		errMsg := fmt.Sprintf("UpdateSvrZ5ZlCompany err: %s", err.Error())
+		log.Error(errMsg)
+		return errors.New(errMsg)
+	}
 	return nil
 }
 
