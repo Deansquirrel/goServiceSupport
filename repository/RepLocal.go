@@ -146,6 +146,13 @@ const (
 	sqlAddJobErrRecord = "" +
 		"INSERT INTO  [joberrrecord]([jobid],[errhh],[errmsg],[occurclienttime],[occurtime]) " +
 		"VALUES(?,?,?,?,?)"
+
+	sqlGetHeartbeatErrCount = "" +
+		"select ISNULL(b.clienttype,'未知') as clienttype,count(a.clientid) as num " +
+		"from heartbeat a " +
+		"left join clientinfo b on a.clientid = b.clientid " +
+		"where a.heartbeat <= ? " +
+		"group by b.clienttype"
 )
 
 type repLocal struct {
@@ -433,3 +440,37 @@ func (r *repLocal) ClearInvalidHeartBeat() error {
 }
 
 //TODO ClientControl内容维护（界面）
+
+func (r *repLocal) GetHeartbeatErrCount(t time.Time) ([]*object.HeartbeatErrCount, error) {
+	outTime := goToolCommon.GetDateTimeStrWithMillisecond(t)
+	rows, err := goToolMSSqlHelper.GetRowsBySQL(r.dbConfig, sqlGetHeartbeatErrCount, outTime)
+	if err != nil {
+		errMsg := fmt.Sprintf("GetHeartbeatErrCount %s err: %s", outTime, err.Error())
+		log.Error(errMsg)
+		return nil, errors.New(errMsg)
+	}
+	defer func() {
+		_ = rows.Close()
+	}()
+	rList := make([]*object.HeartbeatErrCount, 0)
+	var clientType string
+	var count int
+	for rows.Next() {
+		err := rows.Scan(&clientType, &count)
+		if err != nil {
+			errMsg := fmt.Sprintf("%s read data err: %s", "GetClientControl", err.Error())
+			log.Error(errMsg)
+			return nil, errors.New(errMsg)
+		}
+		rList = append(rList, &object.HeartbeatErrCount{
+			Type:  clientType,
+			Count: count,
+		})
+	}
+	if rows.Err() != nil {
+		errMsg := fmt.Sprintf("GetHeartbeatErrCount %s err: %s", outTime, rows.Err().Error())
+		log.Error(errMsg)
+		return nil, errors.New(errMsg)
+	}
+	return rList, nil
+}

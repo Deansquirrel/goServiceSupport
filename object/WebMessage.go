@@ -29,12 +29,6 @@ type ClientInfoRequest struct {
 	InternetIP    string `json:"internetip"`
 }
 
-//type ClientIdResponse struct {
-//	ErrCode int    `json:"errcode"`
-//	ErrMsg  string `json:"errmsg"`
-//	Id      string `json:"id"`
-//}
-
 type SvrV3InfoRequest struct {
 	ClientId   string `json:"clientid"`
 	CoId       int    `json:"coid"`
@@ -90,4 +84,18 @@ type JobErrRecordRequest struct {
 	JobId     string    `json:"jobid"`
 	ErrMsg    string    `json:"errmsg"`
 	OccurTime time.Time `json:"occurtime"`
+}
+
+//===================================================================================
+type WelcomeDataRequest struct {
+	HeartbeatClientType string `json:"heartbeatClientType"`
+}
+
+type HeartbeatErrCount struct {
+	Type  string `json:"type"`
+	Count int    `json:"count"`
+}
+
+type WelcomeDataResponse struct {
+	HeartbeatData []HeartbeatErrCount `json:"heartbeatData"`
 }
