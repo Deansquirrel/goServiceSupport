@@ -23,3 +23,7 @@ var Args *object.ProgramArgs
 
 //系统参数
 var SysConfig *object.SystemConfig
+
+const (
+	ListUnknownTitle = "未知"
+)

@@ -97,5 +97,7 @@ type HeartbeatErrCount struct {
 }
 
 type WelcomeDataResponse struct {
+	ErrCode       int                 `json:"errcode"`
+	ErrMsg        string              `json:"errmsg"`
 	HeartbeatData []HeartbeatErrCount `json:"heartbeatData"`
 }

@@ -60,6 +60,7 @@ func (ws *webServer) irisRouter(app *iris.Application) {
 	wsRouter.NewRouterHeartBeat(app).AddRouter()
 	wsRouter.NewRouterClient(app).AddRouter()
 	wsRouter.NewRouterJob(app).AddRouter()
+	wsRouter.NewRouterWatcherSupport(app).AddRouter()
 }
 
 //iris启动

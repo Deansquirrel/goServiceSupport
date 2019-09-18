@@ -148,11 +148,30 @@ const (
 		"VALUES(?,?,?,?,?)"
 
 	sqlGetHeartbeatErrCount = "" +
-		"select ISNULL(b.clienttype,'未知') as clienttype,count(a.clientid) as num " +
+		"select ISNULL(b.clienttype,'" + global.ListUnknownTitle + "') as clienttype,count(a.clientid) as num " +
 		"from heartbeat a " +
 		"left join clientinfo b on a.clientid = b.clientid " +
 		"where a.heartbeat <= ? " +
-		"group by b.clienttype"
+		"group by b.clienttype " +
+		"order by b.clienttype"
+
+	//TODO
+//	sqlS = "" +
+//		"SELECT top 0 '' AS clientid,0 as coid,'' as coab,'' as couserab,'' as svver
+//	union all
+//select clientid,coid,coab,couserab,svver
+//from svrv3info
+//union all
+//select a.clientid,coid,coab,couserab,ISNULL(b.objectversion,'')
+//from svrz5zlcompany a
+//left join svrz5zlversion b on a.clientid = b.clientid and b.objectname = ''
+//
+//--select * from svrz5zlcompany
+//--select * from svrz5zlversion order by clientid
+//
+//
+//SELECT *
+//FROM heartbeat"
 )
 
 type repLocal struct {

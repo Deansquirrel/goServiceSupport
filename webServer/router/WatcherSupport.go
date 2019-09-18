@@ -3,8 +3,10 @@ package router
 import (
 	"fmt"
 	"github.com/Deansquirrel/goServiceSupport/object"
+	"github.com/Deansquirrel/goServiceSupport/worker"
 	"github.com/iris-contrib/middleware/cors"
 	"github.com/kataras/iris"
+	"strings"
 )
 
 type watcherSupport struct {
@@ -37,14 +39,22 @@ func (r *watcherSupport) getWelcomeData(ctx iris.Context) {
 		r.c.WriteError(ctx, -1, fmt.Sprintf("Bad Request: %s", err.Error()))
 		return
 	}
-	//TODO 处理返回数据并返回界面
-	//typeList := strings.Split(d.HeartbeatClientType,",")
-	//w := worker.NewWatcherSupportWorker()
-	//list,err := w.GetHeartbeatErrCount(typeList)
-	//if err != nil {
-	//	r.c.WriteError(ctx,-1,err.Error())
-	//	return
-	//}
-	//d.HeartbeatClientType
-	//r.c.WriteError()
+
+	var typeList []string
+	if strings.Trim(d.HeartbeatClientType, " ") != "" {
+		typeList = strings.Split(d.HeartbeatClientType, "|")
+	}
+	w := worker.NewWatcherSupportWorker()
+	list, err := w.GetHeartbeatErrCount(typeList)
+	if err != nil {
+		r.c.WriteError(ctx, -1, err.Error())
+		return
+	}
+	responseData := object.WelcomeDataResponse{
+		ErrCode:       int(object.ErrTypeCodeNoError),
+		ErrMsg:        string(object.ErrTypeMsgNoError),
+		HeartbeatData: list,
+	}
+	r.c.WriteResponse(ctx, responseData)
+	return
 }
