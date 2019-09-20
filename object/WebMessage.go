@@ -101,3 +101,24 @@ type WelcomeDataResponse struct {
 	ErrMsg        string              `json:"errmsg"`
 	HeartbeatData []HeartbeatErrCount `json:"heartbeatData"`
 }
+
+type HeartbeatMonitorDataRequest struct {
+	Type string `json:"type"`
+}
+
+type HeartbeatMonitorData struct {
+	ClientId      string    `json:"clientId"`
+	CoId          int       `json:"coId"`
+	CoAb          string    `json:"coAb"`
+	CoUserAb      string    `json:"coUserAb"`
+	SvVer         string    `json:"svVer"`
+	HeartBeat     time.Time `json:"heartbeat"`
+	ClientVersion string    `json:"clientVersion"`
+	IsOffLine     string    `json:"isOffLine"`
+}
+
+type HeartbeatMonitorDataResponse struct {
+	ErrCode int                    `json:"errcode"`
+	ErrMsg  string                 `json:"errmsg"`
+	Data    []HeartbeatMonitorData `json:"data"`
+}

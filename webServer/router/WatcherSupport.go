@@ -29,6 +29,7 @@ func (r *watcherSupport) AddRouter() {
 	v := r.app.Party("/watchersupport", crs).AllowMethods(iris.MethodOptions)
 	{
 		v.Post("/welcome", r.getWelcomeData)
+		v.Post("/heartbeatMonitorData", r.getHeartbeatMonitorData)
 	}
 }
 
@@ -50,10 +51,33 @@ func (r *watcherSupport) getWelcomeData(ctx iris.Context) {
 		r.c.WriteError(ctx, -1, err.Error())
 		return
 	}
+
 	responseData := object.WelcomeDataResponse{
 		ErrCode:       int(object.ErrTypeCodeNoError),
 		ErrMsg:        string(object.ErrTypeMsgNoError),
 		HeartbeatData: list,
+	}
+	r.c.WriteResponse(ctx, responseData)
+	return
+}
+
+func (r *watcherSupport) getHeartbeatMonitorData(ctx iris.Context) {
+	var d object.HeartbeatMonitorDataRequest
+	err := ctx.ReadJSON(&d)
+	if err != nil {
+		r.c.WriteError(ctx, -1, fmt.Sprintf("Bad Request: %s", err.Error()))
+		return
+	}
+	w := worker.NewWatcherSupportWorker()
+	list, err := w.GetHeartbeatMonitorData(d.Type)
+	if err != nil {
+		r.c.WriteError(ctx, -1, err.Error())
+		return
+	}
+	responseData := object.HeartbeatMonitorDataResponse{
+		ErrCode: int(object.ErrTypeCodeNoError),
+		ErrMsg:  string(object.ErrTypeMsgNoError),
+		Data:    list,
 	}
 	r.c.WriteResponse(ctx, responseData)
 	return

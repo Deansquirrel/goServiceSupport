@@ -22,7 +22,7 @@ func NewWatcherSupportWorker() *watcherSupportWorker {
 
 func (w *watcherSupportWorker) GetHeartbeatErrCount(typeList []string) ([]object.HeartbeatErrCount, error) {
 	rep := repository.NewRepLocal(repository.NewCommon().GetLocalDbConfig())
-	outTime := time.Now().Add(goToolCommon.GetDurationBySecond(global.SysConfig.SSConfig.HeartBeatForbidden))
+	outTime := time.Now().Add(-goToolCommon.GetDurationBySecond(global.SysConfig.SSConfig.HeartBeatForbidden))
 	rList, err := rep.GetHeartbeatErrCount(outTime)
 	if err != nil {
 		return nil, err
@@ -54,7 +54,8 @@ func (w *watcherSupportWorker) GetHeartbeatErrCount(typeList []string) ([]object
 	for k := range rMap {
 		keys = append(keys, k)
 	}
-	sort.Strings(keys)
+	//sort.Strings(keys)
+	sort.Sort(goToolCommon.SortByPinyin(keys))
 
 	list := make([]object.HeartbeatErrCount, 0)
 	for _, k := range keys {
@@ -64,4 +65,17 @@ func (w *watcherSupportWorker) GetHeartbeatErrCount(typeList []string) ([]object
 		})
 	}
 	return list, nil
+}
+
+func (w *watcherSupportWorker) GetHeartbeatMonitorData(cType string) ([]object.HeartbeatMonitorData, error) {
+	rep := repository.NewRepLocal(repository.NewCommon().GetLocalDbConfig())
+	list, err := rep.GetHeartbeatMonitorData(cType)
+	if err != nil {
+		return nil, err
+	}
+	rList := make([]object.HeartbeatMonitorData, 0)
+	for _, d := range list {
+		rList = append(rList, *d)
+	}
+	return rList, nil
 }

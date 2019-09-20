@@ -156,6 +156,24 @@ const (
 		"order by b.clienttype"
 
 	//TODO
+	sqlGetHeartbeatMonitorData = "" +
+		"select a.clientid,a.coid,a.coab,a.couserab,a.svver," +
+		"	ISNULL(b.heartbeat,'1900-01-01') as heartbeat," +
+		"	ISNULL(c.clientversion,'" + global.ListUnknownTitle + "') as clientversion " +
+		"from ( " +
+		"	SELECT top 0 '' AS clientid,0 as coid,'' as coab,'' as couserab,'' as svver " +
+		"	union all " +
+		"	select clientid,coid,coab,couserab,svver " +
+		"	from svrv3info " +
+		"	union all " +
+		"	select a.clientid,coid,coab,couserab,ISNULL(b.objectversion,'" + global.ListUnknownTitle + "') " +
+		"	from svrz5zlcompany a " +
+		"	left join svrz5zlversion b on a.clientid = b.clientid and b.objectname = '' " +
+		"	) a " +
+		"left join heartbeat b on a.clientid = b.clientid " +
+		"left join clientinfo c on a.clientid = c.clientid " +
+		"where c.clienttype = ?"
+
 //	sqlS = "" +
 //		"SELECT top 0 '' AS clientid,0 as coid,'' as coab,'' as couserab,'' as svver
 //	union all
@@ -488,6 +506,56 @@ func (r *repLocal) GetHeartbeatErrCount(t time.Time) ([]*object.HeartbeatErrCoun
 	}
 	if rows.Err() != nil {
 		errMsg := fmt.Sprintf("GetHeartbeatErrCount %s err: %s", outTime, rows.Err().Error())
+		log.Error(errMsg)
+		return nil, errors.New(errMsg)
+	}
+	return rList, nil
+}
+
+func (r *repLocal) GetHeartbeatMonitorData(cType string) ([]*object.HeartbeatMonitorData, error) {
+	rows, err := goToolMSSqlHelper.GetRowsBySQL(r.dbConfig, sqlGetHeartbeatMonitorData, cType)
+	if err != nil {
+		errMsg := fmt.Sprintf("GetHeartbeatMonitorData %s err: %s", cType, err.Error())
+		log.Error(errMsg)
+		return nil, errors.New(errMsg)
+	}
+	defer func() {
+		_ = rows.Close()
+	}()
+	rList := make([]*object.HeartbeatMonitorData, 0)
+	var clientId, coAb, coUserAb, svVer, clientVersion string
+	var coId int
+	var heartbeat time.Time
+	outTime := time.Now().Add(-goToolCommon.GetDurationBySecond(global.SysConfig.SSConfig.HeartBeatForbidden))
+	outTimeStr := goToolCommon.GetDateTimeStr(outTime)
+	for rows.Next() {
+		err := rows.Scan(&clientId, &coId, &coAb, &coUserAb, &svVer, &heartbeat, &clientVersion)
+		if err != nil {
+			errMsg := fmt.Sprintf("%s read data err: %s", "GetHeartbeatMonitorData", err.Error())
+			log.Error(errMsg)
+			return nil, errors.New(errMsg)
+		}
+		isOffLine := ""
+		if goToolCommon.GetDateTimeStr(heartbeat) <= outTimeStr {
+			isOffLine = "true"
+		} else {
+			isOffLine = "false"
+		}
+		log.Debug(fmt.Sprintf("%s - %s - %s", outTimeStr, goToolCommon.GetDateTimeStr(heartbeat), isOffLine))
+		rList = append(rList, &object.HeartbeatMonitorData{
+			ClientId:      clientId,
+			CoId:          coId,
+			CoAb:          coAb,
+			CoUserAb:      coUserAb,
+			SvVer:         svVer,
+			HeartBeat:     heartbeat,
+			ClientVersion: clientVersion,
+			IsOffLine:     isOffLine,
+		})
+	}
+
+	if rows.Err() != nil {
+		errMsg := fmt.Sprintf("GetHeartbeatMonitorData %s err: %s", cType, rows.Err().Error())
 		log.Error(errMsg)
 		return nil, errors.New(errMsg)
 	}
