@@ -6,9 +6,9 @@ import (
 )
 
 const (
-	//PreVersion = "1.0.6 Build20190815"
+	//PreVersion = "1.0.7 Build20190921"
 	//TestVersion = "0.0.0 Build20190101"
-	Version                   = "1.0.7 Build20190921"
+	Version                   = "0.0.0 Build20190101"
 	Type                      = "ServiceSupport"
 	SecretKey                 = "ServiceSupport"
 	ClearJobRecordCron        = "0 0 * * * ?"
