@@ -30,6 +30,7 @@ func (r *watcherSupport) AddRouter() {
 	{
 		v.Post("/welcome", r.getWelcomeData)
 		v.Post("/heartbeatMonitorData", r.getHeartbeatMonitorData)
+		v.Post("/delHeartbeat", r.delHeartbeat)
 	}
 }
 
@@ -80,5 +81,25 @@ func (r *watcherSupport) getHeartbeatMonitorData(ctx iris.Context) {
 		Data:    list,
 	}
 	r.c.WriteResponse(ctx, responseData)
+	return
+}
+
+func (r *watcherSupport) delHeartbeat(ctx iris.Context) {
+	var d object.DelHeartbeatRequest
+	err := ctx.ReadJSON(&d)
+	if err != nil {
+		r.c.WriteError(ctx, -1, fmt.Sprintf("Bad Request: %s", err.Error()))
+		return
+	}
+	w := worker.NewWatcherSupportWorker()
+	err = w.DelHeartbeat(d.ClientId)
+	if err != nil {
+		r.c.WriteError(ctx, -1, err.Error())
+		return
+	}
+	r.c.WriteResponse(ctx, object.Response{
+		ErrCode: int(object.ErrTypeCodeNoError),
+		ErrMsg:  string(object.ErrTypeMsgNoError),
+	})
 	return
 }

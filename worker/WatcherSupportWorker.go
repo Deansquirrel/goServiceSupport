@@ -79,3 +79,8 @@ func (w *watcherSupportWorker) GetHeartbeatMonitorData(cType string) ([]object.H
 	}
 	return rList, nil
 }
+
+func (w *watcherSupportWorker) DelHeartbeat(clientId string) error {
+	rep := repository.NewRepLocal(repository.NewCommon().GetLocalDbConfig())
+	return rep.DelHeartbeat(clientId)
+}

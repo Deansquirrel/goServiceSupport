@@ -155,24 +155,31 @@ const (
 		"group by b.clienttype " +
 		"order by b.clienttype"
 
-	//TODO
 	sqlGetHeartbeatMonitorData = "" +
-		"select a.clientid,a.coid,a.coab,a.couserab,a.svver," +
-		"	ISNULL(b.heartbeat,'1900-01-01') as heartbeat," +
+		"select b.clientid, " +
+		"	ISNULL(a.coid,-1) AS coid, " +
+		"	ISNULL(a.coab,'" + global.ListUnknownTitle + "') as coab, " +
+		"	ISNULL(a.couserab,'" + global.ListUnknownTitle + "') AS couserab, " +
+		"	ISNULL(a.svver,'" + global.ListUnknownTitle + "') as svver, " +
+		"	ISNULL(b.heartbeat,'1900-01-01') as heartbeat, " +
 		"	ISNULL(c.clientversion,'" + global.ListUnknownTitle + "') as clientversion " +
-		"from ( " +
+		"from heartbeat b " +
+		"left join ( " +
 		"	SELECT top 0 '' AS clientid,0 as coid,'' as coab,'' as couserab,'' as svver " +
 		"	union all " +
 		"	select clientid,coid,coab,couserab,svver " +
 		"	from svrv3info " +
 		"	union all " +
-		"	select a.clientid,coid,coab,couserab,ISNULL(b.objectversion,'" + global.ListUnknownTitle + "') " +
+		"	select a.clientid,coid,coab,couserab,ISNULL(b.objectversion,'wz') " +
 		"	from svrz5zlcompany a " +
 		"	left join svrz5zlversion b on a.clientid = b.clientid and b.objectname = '' " +
-		"	) a " +
-		"left join heartbeat b on a.clientid = b.clientid " +
+		"	) a on a.clientid = b.clientid " +
 		"left join clientinfo c on a.clientid = c.clientid " +
 		"where c.clienttype = ?"
+
+	sqlDelHeartbeat = "" +
+		"delete from heartbeat " +
+		"where clientid = ?"
 
 //	sqlS = "" +
 //		"SELECT top 0 '' AS clientid,0 as coid,'' as coab,'' as couserab,'' as svver
@@ -541,14 +548,13 @@ func (r *repLocal) GetHeartbeatMonitorData(cType string) ([]*object.HeartbeatMon
 		} else {
 			isOffLine = "false"
 		}
-		log.Debug(fmt.Sprintf("%s - %s - %s", outTimeStr, goToolCommon.GetDateTimeStr(heartbeat), isOffLine))
 		rList = append(rList, &object.HeartbeatMonitorData{
 			ClientId:      clientId,
 			CoId:          coId,
 			CoAb:          coAb,
 			CoUserAb:      coUserAb,
 			SvVer:         svVer,
-			HeartBeat:     heartbeat,
+			HeartBeat:     goToolCommon.GetDateTimeStrWithMillisecond(heartbeat),
 			ClientVersion: clientVersion,
 			IsOffLine:     isOffLine,
 		})
@@ -560,4 +566,15 @@ func (r *repLocal) GetHeartbeatMonitorData(cType string) ([]*object.HeartbeatMon
 		return nil, errors.New(errMsg)
 	}
 	return rList, nil
+}
+
+func (r *repLocal) DelHeartbeat(clientId string) error {
+	log.Debug("del ID " + clientId)
+	err := goToolMSSqlHelper.SetRowsBySQL(r.dbConfig, sqlDelHeartbeat, clientId)
+	if err != nil {
+		errMsg := fmt.Sprintf("DelHeartbeat err: %s", err.Error())
+		log.Error(errMsg)
+		return errors.New(errMsg)
+	}
+	return nil
 }
